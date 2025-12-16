@@ -1,7 +1,7 @@
 # Mafia Rating System
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 **Mafia Rating System** is a Python-based simulation framework for Mafia-style games, featuring dynamic player ratings, team matchmaking, and statistical analysis.
 
