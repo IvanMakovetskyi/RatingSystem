@@ -19,12 +19,49 @@
 ---
 
 ## Folder Structure
-
-rating_system/ # Core logic (Player, Game, Rating, Simulation)
-sim/ # Simulation scripts (single, bulk, Monte Carlo)
-ui/ # User interface (CLI / optional GUI)
-data/ # Configs, logs, sample datasets
-tests/ # Unit tests
+```
+RatingSystem/
+│
+├── README.md
+├── .gitignore
+├── requirements.txt
+├── setup.py            # Optional, if you want to make it a package
+│
+├── rating_system/      # Core logic
+│   ├── __init__.py
+│   ├── player.py
+│   ├── game.py
+│   ├── rating.py
+│   ├── simulation.py
+│   ├── matchmaking.py
+│   └── utils.py
+│
+├── sim/                # Simulation scripts
+│   ├── single_game.py
+│   ├── bulk_sim.py
+│   └── monte_carlo.py
+│
+├── ui/                 # User interface
+│   ├── cli.py
+│   └── gui.py          # Optional for future
+│
+├── data/               # Configs, logs, and sample datasets
+│   ├── configs/
+│   │   ├── rating_v1.json
+│   │   └── matchmaking.json
+│   ├── logs/
+│   │   ├── sim_run_001.csv
+│   │   └── errors.log
+│   └── samples/
+│       └── players_seed.csv
+│
+└── tests/              # Unit tests
+    ├── test_player.py
+    ├── test_game.py
+    ├── test_rating.py
+    ├── test_simulation.py
+    └── test_matchmaking.py
+```
 
 ---
 
@@ -35,13 +72,14 @@ tests/ # Unit tests
 ```bash
 git clone https://github.com/yourusername/mafia-rating-system.git
 cd mafia-rating-system
-Install dependencies
+```
+2. **Install dependencies**
 
-bash
-Copy code
+```bash
 pip install -r requirements.txt
-Run a simulation
+```
+3. **Run a simulation**
 
-bash
-Copy code
+```bash
 python sim/single_game.py
+```
