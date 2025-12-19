@@ -42,3 +42,28 @@ class Player:
             self.character = "Very Good"
 
         return self.character
+    
+    def setRole(self, role):
+        """
+        @brief Assigns a team role to the player.
+
+        @param role A string representing the player's team. 
+                    Example values: "red", "black".
+        """
+        self.role = role
+
+    def setRating(self, rating):
+        """
+        @brief Sets the player's rating.
+
+        @param rating An integer or float representing the player's rating value.
+        """
+        self.rating = rating  # fixed from self.role = rating
+
+    def getRating(self):
+        """
+        @brief Returns the player's current rating.
+
+        @return The rating value of the player (int or float).
+        """
+        return self.rating
