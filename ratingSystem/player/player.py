@@ -67,3 +67,11 @@ class Player:
         @return The rating value of the player (int or float).
         """
         return self.rating
+    
+    def getCharacter(self):
+        """
+        @brief Returns the player's character.
+
+        @return The character of the player "string".
+        """
+        return self.character
