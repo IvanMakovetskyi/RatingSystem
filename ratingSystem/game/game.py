@@ -1,6 +1,7 @@
 import random
+from ratingSystem.ratings.ratings import changeRating
 
-class game:
+class Game:
     """
     @brief Represents a single game simulation with Red and Black teams.
     """
@@ -49,9 +50,21 @@ class game:
         blackSkill = sum(p.getRating() for p in self.blackPlayers) / 3
 
         # Compute Red team win probability
-        cityWon = redSkill / (redSkill + blackSkill)
+        if (redSkill + blackSkill) > 0:
+            cityWon = redSkill / (redSkill + blackSkill)
+        else:
+            cityWon = 0.3
 
         # Random outcome based on probability
         cityWon = cityWon > random.random()  # random.random() returns float in [0,1)
+
+        #Change rating for each player
+        for p in self.players:
+            #Player won:
+            if (cityWon and p in self.redPlayers) or ( not cityWon and p in self.blackPlayers):
+                changeRating(p, True)
+            #Player lost:
+            else: 
+                changeRating(p, False)
 
         return cityWon

@@ -15,6 +15,8 @@ def getDope(player):
     """
     dope = random.gauss(DOPES_MEAN[player.getCharacter()], DOPES_SIGMA)
     dope = max(-MAX_DOPES, min(dope, MAX_DOPES))
+    player.avgDope = (player.avgDope * player.games + dope) / (player.games + 1)
+    player.games += 1
     return dope
 
 def changeRating(player, won):
@@ -36,4 +38,8 @@ def changeRating(player, won):
     else:
         change -= WIN_CHANGE
 
-    player.setRating(player.getRating() + change)
+    rating = player.getRating() + change
+    if rating < 0:
+        rating = 0
+
+    player.setRating(rating)

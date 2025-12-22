@@ -1,6 +1,6 @@
 import random
 from ratingSystem.player.player import Player
-from ratingSystem.game.game import game
+from ratingSystem.game.game import Game
 
 # -------------------------------
 # Helper: create dummy players
@@ -18,7 +18,7 @@ def create_dummy_players(num_players=10):
 # -------------------------------
 def test_set_roles():
     players = create_dummy_players()
-    g = game(players)
+    g = Game(players)
     g.setRoles()
 
     # Check number of players per team
@@ -36,7 +36,7 @@ def test_set_roles():
 # -------------------------------
 def test_play_returns_boolean():
     players = create_dummy_players()
-    g = game(players)
+    g = Game(players)
     g.setRoles()
     result = g.play()
     assert isinstance(result, bool)
@@ -53,9 +53,27 @@ def test_play_probabilistic():
         else:
             p.rating = 1000  # Red team very strong
 
-    g = game(players)
+    g = Game(players)
     g.setRoles()
 
     # Run play multiple times, Red should almost always win
     red_wins = sum(g.play() for _ in range(100))
     assert red_wins > 90  # At least 90% wins
+# -------------------------------
+# Test game result updates ratings correctly
+# -------------------------------
+def test_game_updates_player_stats():
+    random.seed(42)
+
+    players = [Player(i) for i in range(10)]
+    for p in players:
+        p.character = "Normal"
+        p.rating = 100
+
+    g = Game(players)
+    g.setRoles()
+    result = g.play()
+
+    for p in players:
+        assert p.games == 1
+        assert isinstance(p.avgDope, float)

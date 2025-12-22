@@ -13,6 +13,8 @@ class Player:
         """
         self.id = id
         self.rating = 0
+        self.games = 0
+        self.avgDope = 0
         self.setCharacter()
 
     def setCharacter(self):
