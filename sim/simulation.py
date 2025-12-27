@@ -4,61 +4,101 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-class Simulation:
 
-    def __init__(self, id, games, playersCount = 10):
+class Simulation:
+    """
+    Simulation class responsible for:
+    - creating players
+    - running multiple games
+    - tracking red team wins
+    - collecting statistics for UI or analysis
+    """
+
+    def __init__(self, id, games, playersCount=10):
+        """
+        Initialize a simulation instance.
+
+        :param id: Simulation identifier
+        :param games: Number of games to simulate
+        :param playersCount: Total number of players in the simulation
+        """
         self.id = id
         self.games = games
         self.playersCount = playersCount
         self.players = []
         self.redWins = 0
-        
+
     def createPlayers(self):
+        """
+        Create Player objects and store them in the simulation.
+
+        Each player is assigned a unique ID based on creation order.
+
+        :return: List of created players
+        """
         for i in range(self.playersCount):
             self.players.append(Player(i))
 
         return self.players
-    
+
     def playGames(self):
-        for i in range(self.games):
+        """
+        Run the simulation for the specified number of games.
+
+        For each game:
+        - randomly select 10 players
+        - assign roles
+        - play the game
+        - count red team wins
+        """
+        for _ in range(self.games):
             players = random.sample(self.players, 10)
             game = Game(players)
             game.setRoles()
-            if (game.play()):
+
+            if game.play():
                 self.redWins += 1
 
-    def displayStats(self):
+    def getStats(self):
+        """
+        Collect aggregated statistics from the simulation.
+        Instead of failing if 'character' is missing, 
+        we use 'Unknown' as default.
+        """
         players = self.players
-
         ratings = [p.rating for p in players]
-        games_played = [p.games for p in players]
 
         avg_rating = sum(ratings) / len(ratings)
         variance = sum((r - avg_rating) ** 2 for r in ratings) / len(ratings)
-        std_dev = math.sqrt(variance)
 
-        print("=== Simulation Stats ===")
-        print(f"Games played: {self.games}")
-        print(f"Red wins: {self.redWins}")
-        print(f"Red win rate: {self.redWins / self.games:.2%}")
-        print()
-        print(f"Avg rating: {avg_rating:.2f}")
-        print(f"Rating std dev: {std_dev:.2f}")
-        print(f"Min rating: {min(ratings):.2f}")
-        print(f"Max rating: {max(ratings):.2f}")
-        print(f"Avg games/player: {sum(games_played) / len(players):.2f}")
-        plt.hist(ratings, bins=20)
-        plt.title("Rating Distribution")
-        plt.xlabel("Rating")
-        plt.ylabel("Players")
-        plt.show()
+        # Group ratings by character safely
+        char_histograms = {}
+        for p in players:
+            char = getattr(p, "character", "Unknown")  # fallback
+            if char not in char_histograms:
+                char_histograms[char] = []
+            char_histograms[char].append(p.rating)
+
+        return {
+            "games": self.games,
+            "redWins": self.redWins,
+            "redWinRate": self.redWins / self.games if self.games else 0,
+            "avgRating": avg_rating,
+            "stdDev": math.sqrt(variance),
+            "minRating": min(ratings),
+            "maxRating": max(ratings),
+            "ratings": ratings,
+            "players": players,
+            "charHistograms": char_histograms,
+        }
+
+
 
     def run(self):
+        """
+        Execute the full simulation lifecycle:
+        - create players
+        - play games
+        """
         self.createPlayers()
         self.playGames()
-        self.displayStats()
-
-sim = Simulation(0, 1000, 100)
-
-sim.run()
-

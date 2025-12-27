@@ -92,9 +92,3 @@ def test_avg_dope_and_games_increment():
         meanDope = DOPES_MEAN[p.getCharacter()]
         assert abs(p.avgDope - meanDope) < 0.15
         assert p.games == 10000
-
-    #Print Players Rating
-    """
-    for i in range(10):
-        print(f" \n Player {i} ({players[i].getCharacter()}) rating: {players[i].getRating()} \n")
-    """
