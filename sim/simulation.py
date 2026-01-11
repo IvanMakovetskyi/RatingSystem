@@ -1,8 +1,5 @@
 from ratingSystem.player.player import Player
-from ratingSystem.game.game import Game
-import random
 import math
-import matplotlib.pyplot as plt
 
 
 class Simulation:
@@ -44,20 +41,11 @@ class Simulation:
     def playGames(self):
         """
         Run the simulation for the specified number of games.
-
-        For each game:
-        - randomly select 10 players
-        - assign roles
-        - play the game
-        - count red team wins
         """
-        for _ in range(self.games):
-            players = random.sample(self.players, 10)
-            game = Game(players)
-            game.setRoles()
 
-            if game.play():
-                self.redWins += 1
+        for player in self.players:
+            for _ in range(self.games):
+                player.play()
 
     def getStats(self):
         """
@@ -80,9 +68,6 @@ class Simulation:
             char_histograms[char].append(p.rating)
 
         return {
-            "games": self.games,
-            "redWins": self.redWins,
-            "redWinRate": self.redWins / self.games if self.games else 0,
             "avgRating": avg_rating,
             "stdDev": math.sqrt(variance),
             "minRating": min(ratings),

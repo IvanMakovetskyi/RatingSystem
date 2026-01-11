@@ -3,15 +3,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sim.simulation import Simulation
 from ratingSystem.ratings import constants  # import your constants module
-import itertools
 
 st.title("🎯 Rating System Simulator")
 
 # ---------------------------
 # Simulation Controls
 # ---------------------------
-games = st.slider("Games", 100, 5000, 1000)
-players = st.slider("Players", 10, 1000, 100)
+games = st.slider("Games", 1, 1000, 100)
+players = st.slider("Players", 10, 1000, 500)
 
 st.sidebar.subheader("⚙️ Simulation Constants")
 
@@ -19,27 +18,76 @@ st.sidebar.subheader("⚙️ Simulation Constants")
 win_change = st.sidebar.number_input("WIN_CHANGE", min_value=1, max_value=100, value=constants.WIN_CHANGE)
 constants.WIN_CHANGE = win_change
 
-# MAX_DOPES
-max_dopes = st.sidebar.number_input("MAX_DOPES", min_value=1, max_value=500, value=constants.MAX_DOPES)
-constants.MAX_DOPES = max_dopes
+# MAX_DOPES_COEFFICIENT
+max_dopes_coefficient = st.sidebar.number_input("MAX_DOPES_COEFFICIENT", min_value=0.0, max_value=5.0, value=constants.MAX_DOPES_COEFFICIENT)
+constants.MAX_DOPES_COEFFICIENT = max_dopes_coefficient
+
+
+st.sidebar.subheader("🎭 Character Parameters")
+
+for char, params in constants.CHARACTER_PARAMS.items():
+    st.sidebar.markdown(f"**{char}**")
+
+    # Red WinRate slider (0.0 → 1.0)
+    constants.CHARACTER_PARAMS[char]["redWinRate"] = st.sidebar.slider(
+        f"{char} Red WinRate",
+        min_value=0.0,
+        max_value=1.0,
+        value=params["redWinRate"],
+        step=0.01
+    )
+
+    # Black WinRate slider (0.0 → 1.0)
+    constants.CHARACTER_PARAMS[char]["blackWinRate"] = st.sidebar.slider(
+        f"{char} Black WinRate",
+        min_value=0.0,
+        max_value=1.0,
+        value=params["blackWinRate"],
+        step=0.01
+    )
+
+    # Avg Dope slider (-50 → 50)
+    constants.CHARACTER_PARAMS[char]["avgDope"] = st.sidebar.slider(
+        f"{char} Avg Dope",
+        min_value=-5.0,
+        max_value=5.0,
+        value=params["avgDope"],
+        step=0.01
+    )
 
 # DOPES_SHIFT
 dopes_shift = st.sidebar.number_input("DOPES_SHIFT", min_value=1, max_value=50, value=constants.DOPES_SHIFT)
 constants.DOPES_SHIFT = dopes_shift
 
 # DOPES_MEAN
-dop_mean = {
+dopes_mean = {
     "Very Bad": -dopes_shift,
     "Bad": -dopes_shift / 2,
     "Normal": 0,
     "Good": dopes_shift,
     "Very Good": dopes_shift * 2
 }
-constants.DOPES_MEAN = dop_mean
+constants.DOPES_MEAN = dopes_mean
 
 # DOPES_SIGMA
 dopes_sigma = st.sidebar.number_input("DOPES_SIGMA", min_value=1, max_value=50, value=constants.DOPES_SIGMA)
 constants.DOPES_SIGMA = dopes_sigma
+
+# GAMES_COEFFICIENT_A
+games_coefficient_a = st.sidebar.number_input("GAMES_COEFFICIENT_A", min_value=1, max_value=50, value=constants.GAMES_COEFFICIENT_A)
+constants.GAMES_COEFFICIENT_A = games_coefficient_a
+
+# GAMES_COEFFICIENT_B
+games_coefficient_b = st.sidebar.number_input("GAMES_COEFFICIENT_B", min_value=1, max_value=100, value=constants.GAMES_COEFFICIENT_B)
+constants.GAMES_COEFFICIENT_B = games_coefficient_b
+
+# RATING_COEFFICIENT_A
+rating_coefficient_a = st.sidebar.number_input("RATING_COEFFICIENT_A", min_value=1, max_value=100, value=constants.RATING_COEFFICIENT_A)
+constants.RATING_COEFFICIENT_A = rating_coefficient_a
+
+# RATING_COEFFICIENT_B
+rating_coefficient_b = st.sidebar.number_input("RATING_COEFFICIENT_B", min_value=1, max_value=1000, value=constants.RATING_COEFFICIENT_B)
+constants.RATING_COEFFICIENT_B = rating_coefficient_b
 
 
 if st.button("▶ Run Simulation"):
@@ -51,17 +99,10 @@ if st.button("▶ Run Simulation"):
     # ---------------------------
     # Metrics
     # ---------------------------
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Games", games)
-    col2.metric("Red Wins", stats["redWins"])
-    col3.metric("Red Win Rate", f"{stats.get('redWinRate', stats['redWins']/games):.2%}")
 
-    st.divider()
-
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     col1.metric("Avg Rating", f"{stats['avgRating']:.2f}")
     col2.metric("Std Dev", f"{stats['stdDev']:.2f}")
-    col3.metric("Avg Games/Player", f"{sum(p.games for p in stats['players']) / len(stats['players']):.2f}")
 
     col1, col2 = st.columns(2)
     col1.metric("Min Rating", f"{stats['minRating']:.2f}")

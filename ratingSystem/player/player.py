@@ -1,4 +1,6 @@
 import random
+from ratingSystem.ratings.ratings import changeRating
+from ratingSystem.ratings import constants
 
 class Player:
     """
@@ -15,7 +17,24 @@ class Player:
         self.rating = 0
         self.games = 0
         self.avgDope = 0
+        self.redWinRate = 0
+        self.blackWinRate = 0
         self.setCharacter()
+        self.setWinRates()
+
+    def setWinRates(self):
+        """
+        @brief Randomly using gauss distribution sets winrates to this player.
+
+        @param redWinRate number between 0 and 1, winrate for red team
+        @param blackWinRate number between 0 and 1, winrate for black team 
+        """
+        
+        avgRedWinRate = constants.CHARACTER_PARAMS[self.character]["redWinRate"]
+        avgBlackWinRate = constants.CHARACTER_PARAMS[self.character]["blackWinRate"]
+
+        self.redWinRate = random.gauss(avgRedWinRate, constants.WINRATE_SIGMA)
+        self.redBlackRate = random.gauss(avgBlackWinRate, constants.WINRATE_SIGMA)
 
     def setCharacter(self):
         """
@@ -62,6 +81,36 @@ class Player:
         """
         self.rating = rating  # fixed from self.role = rating
 
+    def play(self):
+        """
+        @brief Simulates the outcome of a single game for the player.
+
+        The method determines if the player wins based on either their red or black
+        win rate, with a small chance to switch between them.
+
+        Logic:
+        1. Start with the player's red win rate.
+        2. With 30% probability, use the black win rate instead.
+        3. Generate a random number to determine if the player wins.
+        4. Return True if the player won, False otherwise.
+
+        @return Boolean indicating if the player won the game.
+        """
+        
+        # Default win rate is the red win rate
+        winrate = self.redWinRate
+        
+        # 30% chance to switch to black win rate
+        if random.random() < 0.3:
+            winrate = self.blackWinRate
+
+        # Determine game outcome
+        won = False
+        if random.random() < winrate:
+            won = True
+
+        changeRating(self, won)
+
     def getRating(self):
         """
         @brief Returns the player's current rating.
@@ -69,6 +118,14 @@ class Player:
         @return The rating value of the player (int or float).
         """
         return self.rating
+    
+    def getGames(self):
+        """
+        @brief Returns the player's games count.
+
+        @return The number of games of the player "int".
+        """
+        return self.games
     
     def getCharacter(self):
         """
