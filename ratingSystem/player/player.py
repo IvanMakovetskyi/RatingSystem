@@ -16,7 +16,7 @@ class Player:
         self.id = id
         self.rating = 0
         self.games = 0
-        self.avgDope = 0
+        self.rank = ""
         self.redWinRate = 0
         self.blackWinRate = 0
         self.setCharacter()
@@ -29,12 +29,12 @@ class Player:
         @param redWinRate number between 0 and 1, winrate for red team
         @param blackWinRate number between 0 and 1, winrate for black team 
         """
-        
+
         avgRedWinRate = constants.CHARACTER_PARAMS[self.character]["redWinRate"]
         avgBlackWinRate = constants.CHARACTER_PARAMS[self.character]["blackWinRate"]
 
         self.redWinRate = random.gauss(avgRedWinRate, constants.WINRATE_SIGMA)
-        self.redBlackRate = random.gauss(avgBlackWinRate, constants.WINRATE_SIGMA)
+        self.blackWinRate = random.gauss(avgBlackWinRate, constants.WINRATE_SIGMA)
 
     def setCharacter(self):
         """
@@ -81,6 +81,14 @@ class Player:
         """
         self.rating = rating  # fixed from self.role = rating
 
+    def setRank(self, rank):
+        """
+        @brief Sets the player's rank based on rating.
+
+        @param rank String representing the rank of the player
+        """
+        self.rank = rank
+
     def play(self):
         """
         @brief Simulates the outcome of a single game for the player.
@@ -109,7 +117,15 @@ class Player:
         if random.random() < winrate:
             won = True
 
-        changeRating(self, won)
+        return changeRating(self, won)
+
+    def getId(self):
+        """
+        @brief Returns the player's identification number.
+
+        @return The id number of the player (int).
+        """
+        return self.id
 
     def getRating(self):
         """
@@ -126,6 +142,14 @@ class Player:
         @return The number of games of the player "int".
         """
         return self.games
+
+    def getRank(self):
+        """
+        @brief Returns the player's current rank.
+
+        @return The rank of the player (string).
+        """
+        return self.rank
     
     def getCharacter(self):
         """

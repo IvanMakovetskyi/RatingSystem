@@ -24,6 +24,13 @@ class Simulation:
         self.playersCount = playersCount
         self.players = []
         self.redWins = 0
+        """
+        store all rating changes in format:
+        "id" : [rank(string), change(int)]
+        EX: 
+        "0": ["Bronze", 0]
+        """
+        self.ratingChange = []
 
     def createPlayers(self):
         """
@@ -45,7 +52,7 @@ class Simulation:
 
         for player in self.players:
             for _ in range(self.games):
-                player.play()
+                 self.ratingChange.append(player.play())
 
     def getStats(self):
         """

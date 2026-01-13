@@ -1,34 +1,22 @@
 from ratingSystem.ratings import constants
-import random
 from math import sqrt
 
 
 def getDope(player):
     """
-    @brief Calculates a random "dope" value for a player based on their character.
-
-    The dope value is sampled from a normal (Gaussian) distribution with:
-    - mean determined by DOPES_MEAN(player.getCharacter())
-    - standard deviation DOPES_SIGMA
-    The result is clamped to [-MAX_DOPES, MAX_DOPES] to avoid extreme changes.
+    @brief Calculates a  "dope" value for a player based on their character.
 
     @param player Player object whose dope is calculated.
     @return Float value representing the dope adjustment for this player.
     """
-    dope = random.gauss(
-        constants.CHARACTER_PARAMS[player.getCharacter()]["avgDope"] * constants.WIN_CHANGE,
-        constants.DOPES_SIGMA
-    )
+    dope = constants.CHARACTER_PARAMS[player.getCharacter()]["avgDope"] * constants.WIN_CHANGE * constants.DOPES_COEFFICIENT
 
-    MAX_DOPES = constants.MAX_DOPES_COEFFICIENT * constants.WIN_CHANGE
-
-    dope = max(-MAX_DOPES, min(dope, MAX_DOPES))
-    player.avgDope = (player.avgDope * player.games + dope) / (player.games + 1)
     player.games += 1
+
     return dope
 
 
-def calculateCoefficients(player):
+def calculateCoefficients(player, won):
     """
     @brief Calculates dynamic scaling coefficients for rating changes.
 
@@ -62,10 +50,37 @@ def calculateCoefficients(player):
     # Rating coefficient: slows progression as rating increases
     r_coef = (
         constants.RATING_COEFFICIENT_A
-        / sqrt(player.getRating() + constants.RATING_COEFFICIENT_B)
+        / (constants.RATING_COEFFICIENT_C * sqrt(player.getRating() + constants.RATING_COEFFICIENT_B))
     )
 
-    return g_coef, r_coef
+    if not won:
+        g_coef = 1/g_coef
+        r_coef = 1/r_coef
+
+    return g_coef * r_coef
+
+def updateRank(player):
+    """
+    @brief Updates the player's rank based on their current rating.
+
+    Logic:
+    1. Take the player's rating modulo 300 to determine position within the rank tiers.
+    2. Map the result to a rank using the RANKS list from constants.
+    3. Update the player's rank using setRank().
+
+    @param player Player object whose rank is being updated.
+    """
+    # Calculate the player's position within the rank cycle
+    rank = int(player.getRating() // 300)
+    
+    # Map the position to the actual rank name
+    if rank > 6:
+        rank = "Capo"
+    else:
+        rank = constants.RANKS[rank]
+    
+    # Update the player's rank
+    player.setRank(rank)
 
 
 def changeRating(player, won):
@@ -80,17 +95,20 @@ def changeRating(player, won):
     @param player Player object whose rating is updated.
     @param won Boolean indicating if the player won (True) or lost (False).
     """
-    change = getDope(player)
-    g_coef, r_coef = calculateCoefficients(player)
+    dope = getDope(player)
+    coef = calculateCoefficients(player, won)
+    change = dope
 
     if won:
         change += constants.WIN_CHANGE
+        dif = constants.WIN_CHANGE
+        
     else:
         change -= constants.WIN_CHANGE
-        g_coef = 1/g_coef
-        r_coef = 1/r_coef
+        dif = -constants.WIN_CHANGE
 
-    change = change * g_coef * r_coef
+    change *= coef
+    dif *= coef
 
     rating = player.getRating() + change
 
@@ -98,3 +116,7 @@ def changeRating(player, won):
         rating = 0
 
     player.setRating(rating)
+    updateRank(player)
+
+    print({player.getId(): [player.getRank(), dif, dope, coef]})
+    return({player.getId(): [player.getRank(), dif, dope, coef]})
